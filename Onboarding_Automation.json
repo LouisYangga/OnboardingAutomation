@@ -1,0 +1,419 @@
+{
+  "name": "Onboarding Automation",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "onboarding",
+        "responseMode": "responseNode",
+        "options": {
+          "rawBody": true
+        }
+      },
+      "id": "cff23074-5af1-4b3b-9849-36bfa106b434",
+      "name": "Webhook Trigger",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 1,
+      "position": [
+        280,
+        540
+      ],
+      "webhookId": "2714629b-33ab-4fc9-b830-961475c86b7f"
+    },
+    {
+      "parameters": {
+        "authentication": "headerAuth",
+        "url": "=https://api.github.com/users/{{ $json.body.user.githubUsername }}",
+        "jsonParameters": "={{ true }}",
+        "options": {}
+      },
+      "id": "ae61da7d-9904-46a2-a63c-9aada85700b5",
+      "name": "Check GitHub Username",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 1,
+      "position": [
+        500,
+        440
+      ],
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "y51jgvKtYmFOC4bY",
+          "name": "Header Auth account"
+        }
+      },
+      "onError": "continueErrorOutput"
+    },
+    {
+      "parameters": {
+        "authentication": "headerAuth",
+        "requestMethod": "POST",
+        "url": "=https://api.github.com/orgs/OnboardingEmployee/invitations",
+        "options": {},
+        "bodyParametersUi": {
+          "parameter": [
+            {
+              "name": "invitee_id",
+              "value": "={{ $json.id }}"
+            },
+            {
+              "name": "role",
+              "value": "direct_member"
+            }
+          ]
+        },
+        "headerParametersUi": {
+          "parameter": [
+            {
+              "name": "Accept",
+              "value": "applciation/vnd.github+json"
+            },
+            {
+              "name": "User-Agent",
+              "value": "n8n-agent"
+            },
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        }
+      },
+      "id": "e8f2009a-13b4-4ad7-a8b7-766c209ca9f2",
+      "name": "Send GitHub Org Invite",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 1,
+      "position": [
+        720,
+        340
+      ],
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "y51jgvKtYmFOC4bY",
+          "name": "Header Auth account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "calendar": {
+          "__rl": true,
+          "value": "louis.yangga@gmail.com",
+          "mode": "list",
+          "cachedResultName": "louis.yangga@gmail.com"
+        },
+        "start": "={{ $json['start time'] }}",
+        "end": "={{ $json['end time'] }}",
+        "additionalFields": {
+          "attendees": [
+            "={{ $json.body.user.email }}"
+          ],
+          "description": "=Onboarding Meeting for {{ $json.body.user.firstName }} {{ $json.body.user.lastName }} as {{ $json.body.user.title }} in {{ $json.body.user.department }} department",
+          "guestsCanInviteOthers": false,
+          "guestsCanSeeOtherGuests": false,
+          "summary": "=Onboarding Meeting for {{ $json.body.user.firstName }} {{ $json.body.user.lastName }}"
+        }
+      },
+      "id": "4d2fcb74-419c-4fa4-8328-c715e41b3d71",
+      "name": "Create Calendar Invite",
+      "type": "n8n-nodes-base.googleCalendar",
+      "typeVersion": 1,
+      "position": [
+        720,
+        740
+      ],
+      "credentials": {
+        "googleCalendarOAuth2Api": {
+          "id": "KhGVMSXJlZjW8vKm",
+          "name": "Google Calendar account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "sendTo": "={{ $('Webhook Trigger').item.json.body.user.email }}",
+        "subject": "=Welcome Email for {{ $('Webhook Trigger').item.json.body.user.firstName }} {{ $('Webhook Trigger').item.json.body.user.lastName }} as {{ $('Webhook Trigger').item.json.body.user.title }} in {{ $('Webhook Trigger').item.json.body.user.department }} department",
+        "message": "=<!DOCTYPE html>\n<html>\n  <body style=\"font-family: Arial, sans-serif;\">\n    <h2 style=\"color: #333;\">Welcome to the Team, {{ $('Webhook Trigger').item.json.body.user.firstName }} !</h2>\n    <p>Hi {{ $('Webhook Trigger').item.json.body.user.firstName }},</p>\n    <p>We're excited to have you join as a <strong>{{ $('Webhook Trigger').item.json.body.user.title }}</strong> in the <strong>{{ $('Webhook Trigger').item.json.body.user.department }}</strong> team.</p>\n    <p>✅ Your onboarding meeting is scheduled. Check your email for invitation. <a href=\"{{ $('Create Calendar Invite').item.json.htmlLink }}\" target=\"_blank\">View Invite</a> </p>\n    <p>✅ If you provided a GitHub username, you’ll receive an invite shortly.</p>\n    <p>✅ Do not forget to change the password in the link. This is the temporary password: <strong>{{ $('Webhook Trigger').item.json.body.password}}</strong></p>\n    <p>Let us know if you need anything!</p>\n    <p><strong>The Team</strong></p>\n  </body>\n</html>\n",
+        "options": {
+          "appendAttribution": false,
+          "senderName": "Louis Yangga"
+        }
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.1,
+      "position": [
+        1160,
+        740
+      ],
+      "id": "f8012587-1852-4d7b-a40a-572cbdf0dbbe",
+      "name": "Send a message",
+      "webhookId": "8d159673-bce5-49e2-8e04-cb06c491551b",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "17gsgSxX8ROpwJr4",
+          "name": "Gmail account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": " https://d713-120-152-137-244.ngrok-free.app/api/log-onboarding",
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "email",
+              "value": "={{ $('Webhook Trigger').item.json.body.user.email }}"
+            },
+            {
+              "name": "step",
+              "value": "Sending Email"
+            },
+            {
+              "name": "status",
+              "value": "Sent"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        1380,
+        740
+      ],
+      "id": "dd0400de-184b-4aec-8a99-638fa296e5ad",
+      "name": "Log Sent Email"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": " https://d713-120-152-137-244.ngrok-free.app/api/log-onboarding",
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "email",
+              "value": "={{ $json.body.user.email }}"
+            },
+            {
+              "name": "step",
+              "value": "Sending Github Invite"
+            },
+            {
+              "name": "status",
+              "value": "No Information Provided"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        720,
+        540
+      ],
+      "id": "3f4c6264-083d-4d8b-ab23-4ba79cbdd8bf",
+      "name": "Log Github Not Exists"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": " https://d713-120-152-137-244.ngrok-free.app/api/log-onboarding",
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "email",
+              "value": "={{ $json.attendees[0].email }}"
+            },
+            {
+              "name": "step",
+              "value": "Calendar Invitation"
+            },
+            {
+              "name": "status",
+              "value": "Sent"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        940,
+        740
+      ],
+      "id": "1768f538-3a19-4371-af04-638c8c4e1105",
+      "name": "Log Calendar Invitation"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": " https://d713-120-152-137-244.ngrok-free.app/api/log-onboarding",
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "email",
+              "value": "={{ $('Webhook Trigger').item.json.body.user.email }}"
+            },
+            {
+              "name": "step",
+              "value": "Github Invitation"
+            },
+            {
+              "name": "status",
+              "value": "Sent"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        940,
+        340
+      ],
+      "id": "4a8574c3-1d22-4d4f-bc77-e3e8f41c80cd",
+      "name": "Log Invitation Sent"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "14668ce2-e094-4e98-9f71-a324ee7349e2",
+              "name": "=start time",
+              "value": "={{ \n  new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString().split(\"T\")[0] + \"T10:00:00.000\" \n}}",
+              "type": "string"
+            },
+            {
+              "id": "3d5e0ff8-1a58-42c2-bd91-02af5570f6cf",
+              "name": "end time",
+              "value": "={{ \n  new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString().split(\"T\")[0] + \"T12:00:00.000\" \n}}",
+              "type": "string"
+            }
+          ]
+        },
+        "includeOtherFields": true,
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        500,
+        740
+      ],
+      "id": "d60d2f2f-15f3-4226-87de-5dbf4d7ee5c7",
+      "name": "Set Date"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Webhook Trigger": {
+      "main": [
+        [
+          {
+            "node": "Check GitHub Username",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Set Date",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Check GitHub Username": {
+      "main": [
+        [
+          {
+            "node": "Send GitHub Org Invite",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Log Github Not Exists",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send a message": {
+      "main": [
+        [
+          {
+            "node": "Log Sent Email",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create Calendar Invite": {
+      "main": [
+        [
+          {
+            "node": "Log Calendar Invitation",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send GitHub Org Invite": {
+      "main": [
+        [
+          {
+            "node": "Log Invitation Sent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Log Calendar Invitation": {
+      "main": [
+        [
+          {
+            "node": "Send a message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Set Date": {
+      "main": [
+        [
+          {
+            "node": "Create Calendar Invite",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "ea97e9f9-fbc6-4ebf-bfb9-ce633af15877",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "61be956f24582977d8af4e23bd60adf961fe3af82e437b2d21dc9b05e6ad0cde"
+  },
+  "id": "x80F1EvcV0MA1JN6",
+  "tags": []
+}
