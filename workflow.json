@@ -1,0 +1,142 @@
+{
+  "nodes": [
+    {
+      "id": "1",
+      "name": "Webhook Trigger",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 1,
+      "position": [200, 300],
+      "parameters": {
+        "path": "onboarding",
+        "method": "POST",
+        "responseMode": "onReceived"
+      }
+    },
+    {
+      "id": "2",
+      "name": "Send Welcome Email",
+      "type": "n8n-nodes-base.emailSend",
+      "typeVersion": 1,
+      "position": [450, 100],
+      "parameters": {
+        "fromEmail": "your-email@example.com",
+        "toEmail": "={{$json.email}}",
+        "subject": "Welcome to the team, {{$json.firstName}}!",
+        "text": "Hi {{$json.firstName}},\n\nWelcome aboard as our new {{$json.title}} in {{$json.department}}!\n\nWe’re excited to have you.\n\nBest,\nYour Company"
+      }
+    },
+    {
+      "id": "3",
+      "name": "Check GitHub Username",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 1,
+      "position": [450, 300],
+      "parameters": {
+        "url": "https://api.github.com/users/{{$json.gitHubUsername}}",
+        "method": "GET",
+        "jsonParameters": true,
+        "headerParametersJson": "{\"User-Agent\":\"n8n-bot\"}"
+      }
+    },
+    {
+      "id": "4",
+      "name": "GitHub Exists?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 1,
+      "position": [700, 300],
+      "parameters": {
+        "conditions": {
+          "boolean": [
+            {
+              "value1": "={{$node[\"Check GitHub Username\"].json.login !== undefined}}",
+              "value2": true
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "5",
+      "name": "Send GitHub Org Invite",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 1,
+      "position": [900, 200],
+      "parameters": {
+        "url": "https://api.github.com/orgs/YOUR_ORG_NAME/memberships/{{$json.gitHubUsername}}",
+        "method": "PUT",
+        "authentication": "headerAuth",
+        "headerParameters": {
+          "Authorization": "Bearer YOUR_GITHUB_PAT",
+          "Accept": "application/vnd.github+json",
+          "User-Agent": "n8n-bot"
+        }
+      }
+    },
+    {
+      "id": "6",
+      "name": "Create Calendar Invite",
+      "type": "n8n-nodes-base.googleCalendar",
+      "typeVersion": 1,
+      "position": [450, 500],
+      "parameters": {
+        "calendar": "primary",
+        "start": "={{$now}}",
+        "end": "={{$addSeconds($now, 3600)}}",
+        "summary": "Welcome Meeting: {{$json.firstName}}",
+        "description": "Meet your team and get oriented!",
+        "attendees": "={{$json.email}}"
+      },
+      "credentials": {
+        "googleApi": {
+          "id": "YOUR_GOOGLE_CREDENTIAL_ID",
+          "name": "Google API"
+        }
+      }
+    }
+  ],
+  "connections": {
+    "Webhook Trigger": {
+      "main": [
+        [
+          {
+            "node": "Send Welcome Email",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Check GitHub Username",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Create Calendar Invite",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Check GitHub Username": {
+      "main": [
+        [
+          {
+            "node": "GitHub Exists?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "GitHub Exists?": {
+      "main": [
+        [
+          {
+            "node": "Send GitHub Org Invite",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  }
+}
