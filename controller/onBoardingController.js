@@ -18,11 +18,11 @@ export const startOnboarding = async (req, res) => {
         const io = req.app.get('io');
         io.emit('log', log);
         io.emit('log', userCreatedLog);
-        console.log('User created:', user);
+        // console.log('User created:', user);
 
         //send user data and plain password to n8n webhook
         try {
-            //let it run in the background1
+            //let it run in the background
             axios.post(process.env.N8N_WEBHOOK_URL, { user, password: plainPassword });
         } catch (axiosError) { // Handle axios error
             console.error('Failed to notify n8n webhook:', axiosError.message);
