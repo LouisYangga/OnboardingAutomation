@@ -81,7 +81,12 @@ export const userLogin = async (req, res) => {
     try {
         const user = await checkPassword(email, password);
 
-        res.status(200).json({ message: 'Login successful', user });
+        // Remove password before sending user object
+        const userWithoutPassword = { ...user._doc };
+        delete userWithoutPassword.password;
+        delete userWithoutPassword.__v;
+        delete userWithoutPassword._id;
+        res.status(200).json({ message: 'Login successful', user: userWithoutPassword });
     } catch (error) {
         console.error('Login error:', error);
         res.status(500).json({ error: 'Login failed', details: error.message });
