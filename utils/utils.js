@@ -63,7 +63,7 @@ export const logEntry = async (email, step, status) => {
             timestamp: new Date()
         });
         await log.save();
-        console.log("Log entry saved:", log);
+        // console.log("Log entry saved:", log);
         return log;
     } catch (error) {
         console.error("Error saving log entry:", error);
