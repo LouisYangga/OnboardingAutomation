@@ -22,6 +22,7 @@ export const startOnboarding = async (req, res) => {
 
         //send user data and plain password to n8n webhook
         try {
+            //let it run in the background1
             axios.post(process.env.N8N_WEBHOOK_URL, { user, password: plainPassword });
         } catch (axiosError) { // Handle axios error
             console.error('Failed to notify n8n webhook:', axiosError.message);
