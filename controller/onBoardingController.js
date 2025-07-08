@@ -118,3 +118,11 @@ export const updatePassword = async (req, res) => {
         res.status(500).json({ error: 'Failed to update password' });
     }
 };
+
+export const healthCheck = (req, res) => {
+    console.log('Health check endpoint hit');
+    res.status(200).json({ 
+        message: 'API is healthy',
+        timestamp: new Date().toISOString(),
+    });
+}

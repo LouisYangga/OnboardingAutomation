@@ -1,10 +1,11 @@
 import express from 'express';
 const router = express.Router();
-import {startOnboarding, logOnboardingStep, getLogsByEmail,userLogin,updatePassword} from '../controller/onBoardingController.js';
+import {startOnboarding, logOnboardingStep, getLogsByEmail,userLogin,updatePassword, healthCheck} from '../controller/onBoardingController.js';
 import { checkApiKey } from '../middleware/securityMiddleware.js';
 router.post('/start-onboarding', checkApiKey, startOnboarding);
 router.post('/log-onboarding', checkApiKey, logOnboardingStep);
 router.post('/login', checkApiKey, userLogin);
 router.get('/logs/:email', checkApiKey, getLogsByEmail);
+router.get('/health', healthCheck);
 router.put('/update-password', checkApiKey, updatePassword);
 export default router;
