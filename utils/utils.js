@@ -70,6 +70,26 @@ export const logEntry = async (email, step, status) => {
         throw error;
     }
 };
+export const findLogsByEmail = async (email) => {
+    try {
+        const logs = await Log.find({ email }).sort({ timestamp: 1 });
+        const sanitizedLogs = logs.map(log => {
+            const logObject = log.toObject();
+            delete logObject._id; // Remove _id field
+            delete logObject.__v; // Remove __v field
+            return logObject;
+        });
+        if (!logs || logs.length === 0) {
+            throw new Error('No logs found for this email');
+        }
+        
+        return sanitizedLogs;
+    }
+    catch (error) {
+        console.error('Fetching logs error:', error);
+        throw new Error('Failed to fetch logs');
+    }
+}
 export const checkPassword = async(email, password) => {
         const user = await User.findOne({ email });
         if (!user) {

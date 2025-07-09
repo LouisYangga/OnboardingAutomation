@@ -1,5 +1,5 @@
 import axios from 'axios';
-import {createUser,logEntry, checkPassword} from '../utils/utils.js';
+import {createUser,logEntry, checkPassword,findLogsByEmail} from '../utils/utils.js';
 import bcrypt from 'bcrypt';
 
 // POST /start-onboarding
@@ -62,9 +62,8 @@ export const logOnboardingStep = async (req, res) => {
 // GET /logs/:email
 export const getLogsByEmail = async (req, res) => {
     const { email } = req.params;
-
     try {
-        const logs = await Log.find({ email }).sort({ timestamp: 1 });
+        const logs = await findLogsByEmail(email);
         res.status(200).json(logs);
     } catch (error) {
         console.error('Fetching logs error:', error);
