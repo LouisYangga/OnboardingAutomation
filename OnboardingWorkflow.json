@@ -1,5 +1,5 @@
 {
-  "name": "Onboarding Automation",
+  "name": "My workflow",
   "nodes": [
     {
       "parameters": {
@@ -10,13 +10,13 @@
           "rawBody": true
         }
       },
-      "id": "cff23074-5af1-4b3b-9849-36bfa106b434",
+      "id": "d52ca63a-6cf2-4f0c-8631-1ac096890408",
       "name": "Webhook Trigger",
       "type": "n8n-nodes-base.webhook",
       "typeVersion": 1,
       "position": [
-        280,
-        540
+        -480,
+        176
       ],
       "webhookId": "2714629b-33ab-4fc9-b830-961475c86b7f"
     },
@@ -27,18 +27,18 @@
         "jsonParameters": "={{ true }}",
         "options": {}
       },
-      "id": "ae61da7d-9904-46a2-a63c-9aada85700b5",
+      "id": "0496d1da-c49a-4df5-8c01-fcb8392c494e",
       "name": "Check GitHub Username",
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 1,
       "position": [
-        500,
-        440
+        -256,
+        80
       ],
       "credentials": {
         "httpHeaderAuth": {
-          "id": "y51jgvKtYmFOC4bY",
-          "name": "Header Auth account"
+          "id": "gswvrx8fbd2X5sKM",
+          "name": "Github PAT"
         }
       },
       "onError": "continueErrorOutput"
@@ -78,18 +78,18 @@
           ]
         }
       },
-      "id": "e8f2009a-13b4-4ad7-a8b7-766c209ca9f2",
+      "id": "f1ac3819-189c-425e-be7c-43ba085de54d",
       "name": "Send GitHub Org Invite",
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 1,
       "position": [
-        720,
-        340
+        -32,
+        -32
       ],
       "credentials": {
         "httpHeaderAuth": {
-          "id": "y51jgvKtYmFOC4bY",
-          "name": "Header Auth account"
+          "id": "gswvrx8fbd2X5sKM",
+          "name": "Github PAT"
         }
       }
     },
@@ -113,17 +113,17 @@
           "summary": "=Onboarding Meeting for {{ $json.body.user.firstName }} {{ $json.body.user.lastName }}"
         }
       },
-      "id": "4d2fcb74-419c-4fa4-8328-c715e41b3d71",
+      "id": "15afb013-0a08-4c62-90ec-c1b6dcbfe83e",
       "name": "Create Calendar Invite",
       "type": "n8n-nodes-base.googleCalendar",
       "typeVersion": 1,
       "position": [
-        720,
-        740
+        -32,
+        368
       ],
       "credentials": {
         "googleCalendarOAuth2Api": {
-          "id": "KhGVMSXJlZjW8vKm",
+          "id": "AFWmQM7imA6domJd",
           "name": "Google Calendar account"
         }
       }
@@ -141,15 +141,15 @@
       "type": "n8n-nodes-base.gmail",
       "typeVersion": 2.1,
       "position": [
-        1160,
-        740
+        416,
+        368
       ],
-      "id": "f8012587-1852-4d7b-a40a-572cbdf0dbbe",
+      "id": "a2e7b1e8-505e-4042-8055-955d13e6739e",
       "name": "Send a message",
       "webhookId": "8d159673-bce5-49e2-8e04-cb06c491551b",
       "credentials": {
         "gmailOAuth2": {
-          "id": "17gsgSxX8ROpwJr4",
+          "id": "VQwhS6AIPVOCujuP",
           "name": "Gmail account"
         }
       }
@@ -157,7 +157,9 @@
     {
       "parameters": {
         "method": "POST",
-        "url": " https://d713-120-152-137-244.ngrok-free.app/api/log-onboarding",
+        "url": "https://onboardingautomation.onrender.com/api/log-onboarding",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
         "sendBody": true,
         "bodyParameters": {
           "parameters": [
@@ -180,16 +182,24 @@
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.2,
       "position": [
-        1380,
-        740
+        640,
+        368
       ],
-      "id": "dd0400de-184b-4aec-8a99-638fa296e5ad",
-      "name": "Log Sent Email"
+      "id": "d4f09a5d-9df0-4a00-9d46-50ff806dbd6a",
+      "name": "Log Sent Email",
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "YLhaDo9AbI9cnQiQ",
+          "name": "API KEY onboarding"
+        }
+      }
     },
     {
       "parameters": {
         "method": "POST",
-        "url": " https://d713-120-152-137-244.ngrok-free.app/api/log-onboarding",
+        "url": "https://onboardingautomation.onrender.com/api/log-onboarding",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
         "sendBody": true,
         "bodyParameters": {
           "parameters": [
@@ -212,16 +222,24 @@
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.2,
       "position": [
-        720,
-        540
+        -32,
+        176
       ],
-      "id": "3f4c6264-083d-4d8b-ab23-4ba79cbdd8bf",
-      "name": "Log Github Not Exists"
+      "id": "b160e68b-c238-44df-96f4-545e51598afd",
+      "name": "Log Github Not Exists",
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "YLhaDo9AbI9cnQiQ",
+          "name": "API KEY onboarding"
+        }
+      }
     },
     {
       "parameters": {
         "method": "POST",
-        "url": " https://d713-120-152-137-244.ngrok-free.app/api/log-onboarding",
+        "url": "https://onboardingautomation.onrender.com/api/log-onboarding",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
         "sendBody": true,
         "bodyParameters": {
           "parameters": [
@@ -244,16 +262,24 @@
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.2,
       "position": [
-        940,
-        740
+        192,
+        368
       ],
-      "id": "1768f538-3a19-4371-af04-638c8c4e1105",
-      "name": "Log Calendar Invitation"
+      "id": "c6567c29-1c11-4e92-b87f-8318953725c6",
+      "name": "Log Calendar Invitation",
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "YLhaDo9AbI9cnQiQ",
+          "name": "API KEY onboarding"
+        }
+      }
     },
     {
       "parameters": {
         "method": "POST",
-        "url": " https://d713-120-152-137-244.ngrok-free.app/api/log-onboarding",
+        "url": "https://onboardingautomation.onrender.com/api/log-onboarding",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
         "sendBody": true,
         "bodyParameters": {
           "parameters": [
@@ -276,11 +302,17 @@
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.2,
       "position": [
-        940,
-        340
+        192,
+        -32
       ],
-      "id": "4a8574c3-1d22-4d4f-bc77-e3e8f41c80cd",
-      "name": "Log Invitation Sent"
+      "id": "ba8905d5-533e-4b67-8798-6e47a21b7797",
+      "name": "Log Invitation Sent",
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "YLhaDo9AbI9cnQiQ",
+          "name": "API KEY onboarding"
+        }
+      }
     },
     {
       "parameters": {
@@ -306,11 +338,51 @@
       "type": "n8n-nodes-base.set",
       "typeVersion": 3.4,
       "position": [
-        500,
-        740
+        -256,
+        368
       ],
-      "id": "d60d2f2f-15f3-4226-87de-5dbf4d7ee5c7",
+      "id": "7983356a-f221-4568-ad77-5ee4ddee883d",
       "name": "Set Date"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://onboardingautomation.onrender.com/api/log-onboarding",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "email",
+              "value": "={{ $('Webhook Trigger').item.json.body.user.email }}"
+            },
+            {
+              "name": "status",
+              "value": "finished"
+            },
+            {
+              "name": "step",
+              "value": "Finished"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        848,
+        368
+      ],
+      "id": "d8f9557d-f7cd-4162-85d3-e4cfc5272982",
+      "name": "HTTP Request",
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "YLhaDo9AbI9cnQiQ",
+          "name": "API KEY onboarding"
+        }
+      }
     }
   ],
   "pinData": {},
@@ -403,17 +475,28 @@
           }
         ]
       ]
+    },
+    "Log Sent Email": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
     }
   },
   "active": true,
   "settings": {
     "executionOrder": "v1"
   },
-  "versionId": "ea97e9f9-fbc6-4ebf-bfb9-ce633af15877",
+  "versionId": "54d82fc2-2795-4ebc-b665-ee21a07654b0",
   "meta": {
     "templateCredsSetupCompleted": true,
     "instanceId": "61be956f24582977d8af4e23bd60adf961fe3af82e437b2d21dc9b05e6ad0cde"
   },
-  "id": "x80F1EvcV0MA1JN6",
+  "id": "wCaVAhObhSXciW96",
   "tags": []
 }
