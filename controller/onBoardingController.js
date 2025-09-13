@@ -1,5 +1,5 @@
 import axios from 'axios';
-import {createUser,logEntry, checkPassword,findLogsByEmail} from '../utils/utils.js';
+import {createUser,logEntry, saveUser,findLogsByEmail} from '../utils/utils.js';
 import bcrypt from 'bcrypt';
 
 // POST /start-onboarding
@@ -32,7 +32,7 @@ export const startOnboarding = async (req, res) => {
             io.emit('error', { message: 'Failed to notify n8n', details: axiosError.message });
             return res.status(500).json({ error: 'Failed to notify n8n' });
         }
-
+        await saveUser(user); // Save user after sending to n8n to ensure password is hashed
         res.status(201).json({ message: 'User created successfully', user, password: plainPassword });
     } catch (error) {
         console.error(error);

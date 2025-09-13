@@ -10,27 +10,35 @@ export const createUser = async (firstName, lastName, email, department, title, 
             throw new Error("User already exists with this email.");
         }
         const plainPassword = generateRandomPassword();
-        const hashedPassword = bcrypt.hashSync(plainPassword, 10);
+
         const user = new User({
             firstName, 
             lastName, 
             email, 
-            password: hashedPassword, 
+            password: plainPassword, 
             department, 
             title, 
             githubUsername
         });
-        await user.save();
         //return user with plain password for further use (e.g., sending to user)
         const userObject = user.toObject();
-        delete userObject.password; // Remove password from the returned object
         return {user: userObject, plainPassword}; // Return user object without password and with plain password
     } catch (error) {
         console.error("Error creating user:", error);
         throw error;
     }
 };
-
+export const saveUser = async (user) => {
+    try {
+        const hashedPassword = await bcrypt.hash(user.password, 10);
+        user.password = hashedPassword;
+        await user.save();
+        return user;
+    } catch (error) {
+        console.error("Error saving user:", error);
+        throw error;
+    }
+};
 export const existByEmail = async (email) => {
   try {
     const user = await User.findOne({ email: email });
