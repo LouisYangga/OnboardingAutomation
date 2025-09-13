@@ -1,5 +1,5 @@
 import axios from 'axios';
-import {createUser,logEntry, saveUser,findLogsByEmail} from '../utils/utils.js';
+import {createUser,logEntry, saveUser,findLogsByEmail,checkPassword} from '../utils/utils.js';
 import bcrypt from 'bcrypt';
 
 // POST /start-onboarding
@@ -12,13 +12,18 @@ export const startOnboarding = async (req, res) => {
 
     try {
         //create user and log the onboarding start and save to database
-        const {user, plainPassword} = await createUser(firstName, lastName, email, department, title, githubUsername);
+        const {user} = await createUser(firstName, lastName, email, department, title, githubUsername);
+        
+        // Store plain password before it gets hashed during save
+        const plainPassword = user.password;
+        
         const log = await logEntry(email, 'Onboarding Started', 'success');
         const userCreatedLog = await logEntry(email, 'User Created', 'success');
         const io = req.app.get('io');
         io.emit('log', log);
         io.emit('log', userCreatedLog);
-        // console.log('User created:', user);
+
+        console.log('User created:', user);
 
         //send user data and plain password to n8n webhook
         try {
@@ -33,6 +38,10 @@ export const startOnboarding = async (req, res) => {
             return res.status(500).json({ error: 'Failed to notify n8n' });
         }
         await saveUser(user); // Save user after sending to n8n to ensure password is hashed
+
+        console.log('User saved to database');
+        console.log('Plain password (send this to user):', plainPassword);
+
         res.status(201).json({ message: 'User created successfully', user, password: plainPassword });
     } catch (error) {
         console.error(error);

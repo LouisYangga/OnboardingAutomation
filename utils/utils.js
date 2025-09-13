@@ -22,7 +22,7 @@ export const createUser = async (firstName, lastName, email, department, title, 
         });
         //return user with plain password for further use (e.g., sending to user)
         const userObject = user.toObject();
-        return {user: userObject, plainPassword}; // Return user object without password and with plain password
+        return {user: userObject}; // Return user object without password and with plain password
     } catch (error) {
         console.error("Error creating user:", error);
         throw error;
@@ -30,12 +30,17 @@ export const createUser = async (firstName, lastName, email, department, title, 
 };
 export const saveUser = async (user) => {
     try {
+        // Store plain password before hashing
+        const plainPassword = user.password;
+        
         const userInstance = new User(user);
         // Hash the password before saving  
-        const hashedPassword = await bcrypt.hash(user.password, 10);
+        const hashedPassword = await bcrypt.hash(userInstance.password, 10);
         userInstance.password = hashedPassword;
         await userInstance.save();
-        return userInstance;
+        
+        // Return both the saved user instance and the plain password
+        return { userInstance, plainPassword };
     } catch (error) {
         console.error("Error saving user:", error);
         throw error;
