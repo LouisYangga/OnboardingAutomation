@@ -30,10 +30,12 @@ export const createUser = async (firstName, lastName, email, department, title, 
 };
 export const saveUser = async (user) => {
     try {
+        const userInstance = new User(user);
+        // Hash the password before saving  
         const hashedPassword = await bcrypt.hash(user.password, 10);
-        user.password = hashedPassword;
-        await user.save();
-        return user;
+        userInstance.password = hashedPassword;
+        await userInstance.save();
+        return userInstance;
     } catch (error) {
         console.error("Error saving user:", error);
         throw error;
